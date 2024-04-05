@@ -88,17 +88,17 @@ inoremap { {}<ESC>i
 " inoremap <TAB> <c-r>=SkipPair()<CR>
 
 autocmd FileType python map <buffer> <F9> :w<cr>:AsyncRun python3 %<cr>
-" autocmd FileType java map <buffer> <F9> :w<cr>:AsyncRun javac %&&java %:r<cr>
-autocmd FileType java map <buffer> <F9> :w<cr>:AsyncRun javac %<cr>
+" autocmd FileType python map <buffer> <M-F9> :w<cr>:copen<cr>:AsyncRun python % -m pdb<cr>
+autocmd FileType java map <buffer> <F9> :w<cr>:AsyncRun javac %&&java %:r<cr>
+autocmd FileType java map <buffer> <M-F9> :w<cr>:AsyncRun javac %<cr>
 autocmd FileType cpp map <buffer> <F9> :w<cr>:AsyncRun g++ % -std=c++17 -o %:r&&./%:r<cr>
-" autocmd FileType cpp map <buffer> <F9> :w<cr>:AsyncRun g++ % -std=c++17 -g -o %:r<cr>
-" autocmd FileType c map <buffer> <F9> :w<cr>:AsyncRun gcc % -std=c17 -o %:r&&./%:r<cr>
-autocmd FileType c map <buffer> <F9> :w<cr>:AsyncRun gcc % -std=c17 -g -o %:r<cr>
+autocmd FileType cpp map <buffer> <M-F9> :w<cr>:AsyncRun g++ % -std=c++17 -g -o %:r<cr>
+autocmd FileType c map <buffer> <F9> :w<cr>:AsyncRun gcc % -std=c17 -o %:r&&./%:r<cr>
+autocmd FileType c map <buffer> <M-F9> :w<cr>:AsyncRun gcc % -std=c17 -g -o %:r<cr>
 autocmd FileType markdown map <buffer> <F9> :w<cr>:MarkdownPreview<cr>
 autocmd FileType tex map <buffer> <F9> :w<cr>
 
-" autocmd FileType python map <buffer> <F10> :w<cr>:copen<cr>:AsyncRun python % -m pdb<cr>
-nnoremap <C-l> :Autoformat<cr>
+nnoremap <M-l> :Autoformat<cr>
 
 call plug#begin('/usr/share/vim/plug')
 " Plug 'SirVer/ultisnips'
