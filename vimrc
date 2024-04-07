@@ -102,7 +102,7 @@ nnoremap <M-l> :Autoformat<cr>
 
 call plug#begin('/usr/share/vim/plug')
 " Plug 'SirVer/ultisnips'
-" Plug 'honza/vim-snippets'
+Plug 'honza/vim-snippets'
 Plug 'neoclide/coc.nvim',{'branch':'release'}
 Plug 'lervag/vimtex',{'for': 'tex'}
 " Plug 'davidhalter/jedi-vim'
@@ -124,13 +124,15 @@ call plug#end()
 " let g:UltiSnipsJumpForwardTrigger="<tab>"
 " let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
 
+
 inoremap <silent><expr> <TAB>
+	  \ search('\%#[]>)}''"`]', 'n') ? '<Right>' :
       \ pumvisible() ? "\<C-n>" :
       \ coc#expandableOrJumpable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
       \ CheckBackspace() ? "\<TAB>" :
       \ coc#refresh()
 inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
-inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<CR>"
+inoremap <expr> <cr> pumvisible() ? "\<C-y>" : search('\%#[]>)}''"`]', 'n') ? '<cr><Esc>O' : '<CR>'
 " not working inoremap <silent><expr> <c-space> pumvisible() ? <Plug>(coc-float-hide) : "\<c-space>"
 " not working inoremap <silent><expr> <M-z> pumvisible() ? coc#pum#cancel()  : "\<M-z>"
 " nmap <silent> gd <Plug>(coc-definition)
@@ -141,13 +143,6 @@ function! CheckBackspace() abort
   let col = col('.') - 1
   return !col || getline('.')[col - 1]  =~# '\s'
 endfunction
-
-" let g:vimspector_install_gadgets = ['vscode-cpptools', 'CodeLLDB', 'debugpy', 'vscode-java-debug']
-" nnoremap <F10> <Plug>VimspectorContinue 
-" nnoremap <C-F10> <Plug>VimspectorStop 
-" nnoremap tt <Plug>VimspectorToggleBreakpoint
-" nnoremap <F11> <Plug>VimspectorStepInto
-" nnoremap <C-F11> <Plug>VimspectorStepOut
 
 let g:vimtex_quickfix_mode = 0
 let g:vimtex_compiler_latexmk_engines = {'_':'-xelatex'}
