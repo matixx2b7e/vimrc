@@ -68,6 +68,8 @@ set showmatch
 set wrap
 set clipboard=unnamed,unnamedplus
 
+set tags=./tags;$HOME
+
 hi SpellBad ctermfg=15 ctermbg=240
 hi CocInlayHint ctermfg=7 ctermbg=240
 set guifont=Fira\ Code\ Regular\ 14
@@ -78,6 +80,7 @@ set background=dark
 inoremap ( ()<ESC>i
 inoremap [ []<ESC>i
 inoremap { {}<ESC>i
+" inoremap { {<cr>}<ESC><S-o>
 " func SkipPair()
 "     if getline('.')[col('.') - 1] == ')' || getline('.')[col('.') - 1] == ']' || getline('.')[col('.') - 1] == '}' || getline('.')[col('.') - 1] == '"' || getline('.')[col('.') - 1] == "'"
 "         return "\<ESC>la"
@@ -91,14 +94,16 @@ autocmd FileType python map <buffer> <F9> :w<cr>:AsyncRun python3 %<cr>
 " autocmd FileType python map <buffer> <M-F9> :w<cr>:copen<cr>:AsyncRun python % -m pdb<cr>
 autocmd FileType java map <buffer> <F9> :w<cr>:AsyncRun javac %&&java %:r<cr>
 autocmd FileType java map <buffer> <M-F9> :w<cr>:AsyncRun javac %<cr>
-autocmd FileType cpp map <buffer> <F9> :w<cr>:AsyncRun g++ % -std=c++17 -o %:r&&./%:r<cr>
-autocmd FileType cpp map <buffer> <M-F9> :w<cr>:AsyncRun g++ % -std=c++17 -g -o %:r<cr>
-autocmd FileType c map <buffer> <F9> :w<cr>:AsyncRun gcc % -std=c17 -o %:r&&./%:r<cr>
-autocmd FileType c map <buffer> <M-F9> :w<cr>:AsyncRun gcc % -std=c17 -g -o %:r<cr>
+autocmd FileType cpp map <buffer> <F9> :w<cr>:AsyncRun g++ % -o %:r -std=c++17&&./%:r<cr>
+autocmd FileType cpp map <buffer> <M-F9> :w<cr>:AsyncRun g++ % -o %:r -std=c++17 -g<cr>
+autocmd FileType c map <buffer> <F9> :w<cr>:AsyncRun gcc % -o %:r -std=c17&&./%:r<cr>
+autocmd FileType c map <buffer> <M-F9> :w<cr>:AsyncRun gcc % -o %:r -std=c17 -g<cr>
 autocmd FileType markdown map <buffer> <F9> :w<cr>:MarkdownPreview<cr>
 autocmd FileType tex map <buffer> <F9> :w<cr>
 
-nnoremap <M-l> :Autoformat<cr>
+autocmd FileType c,cpp,cs,java setlocal commentstring=//\ %s
+
+nnoremap mm :Autoformat<cr>
 
 call plug#begin('/usr/share/vim/plug')
 " Plug 'SirVer/ultisnips'
@@ -126,10 +131,10 @@ call plug#end()
 
 
 inoremap <silent><expr> <TAB>
-	  \ search('\%#[]>)}''"`]', 'n') ? '<Right>' :
       \ pumvisible() ? "\<C-n>" :
       \ coc#expandableOrJumpable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
       \ CheckBackspace() ? "\<TAB>" :
+	  \ search('\%#[]>)}''"`]', 'n') ? '<Right>' :
       \ coc#refresh()
 inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 inoremap <expr> <cr> pumvisible() ? "\<C-y>" : search('\%#[]>)}''"`]', 'n') ? '<cr><Esc>O' : '<CR>'
