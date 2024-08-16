@@ -67,6 +67,8 @@ set syntax=on
 set showmatch
 set wrap
 set clipboard=unnamed,unnamedplus
+set splitright
+set splitbelow
 
 set tags=./tags;$HOME
 
@@ -94,24 +96,30 @@ autocmd FileType python map <buffer> <F9> :w<cr>:AsyncRun python3 %<cr>
 " autocmd FileType python map <buffer> <M-F9> :w<cr>:copen<cr>:AsyncRun python % -m pdb<cr>
 autocmd FileType java map <buffer> <F9> :w<cr>:AsyncRun javac %&&java %:r<cr>
 autocmd FileType java map <buffer> <M-F9> :w<cr>:AsyncRun javac %<cr>
-autocmd FileType cpp map <buffer> <F9> :w<cr>:AsyncRun g++ % -o %:r -std=c++17&&./%:r<cr>
-autocmd FileType cpp map <buffer> <M-F9> :w<cr>:AsyncRun g++ % -o %:r -std=c++17 -g<cr>
-autocmd FileType c map <buffer> <F9> :w<cr>:AsyncRun gcc % -o %:r -std=c17&&./%:r<cr>
-autocmd FileType c map <buffer> <M-F9> :w<cr>:AsyncRun gcc % -o %:r -std=c17 -g<cr>
+" autocmd FileType cpp map <buffer> <F9> :w<cr>:AsyncRun g++ % -o %:r -std=c++17&&./%:r<cr>
+" autocmd FileType cpp map <buffer> <M-F9> :w<cr>:AsyncRun g++ % -o %:r -std=c++17 -g<cr>
+autocmd FileType cpp map <buffer> <F9> :AsyncRun clang++-20 % -o %:r -std=c++23 -O2 -fsanitize=address -fno-omit-frame-pointer<cr>
+autocmd FileType cpp map <buffer> <M-F9> :AsyncRun clang++-20 % -o %:r -std=c++23 -O0 -fsanitize=address -fno-omit-frame-pointer -g<cr>
+" autocmd FileType c map <buffer> <F9> :w<cr>:AsyncRun gcc % -o %:r -std=c17&&./%:r<cr>
+" autocmd FileType c map <buffer> <M-F9> :w<cr>:AsyncRun gcc % -o %:r -std=c17 -g<cr>
+autocmd FileType c map <buffer> <F9> :w<cr>:AsyncRun gcc % -o %:r -std=gnu11 -O2 -fsanitize=address -fno-omit-frame-pointer<cr>:vert ter ./%:r<cr>
+autocmd FileType c map <buffer> <M-F9> :w<cr>:AsyncRun gcc % -o %:r -std=gnu11 -O0 -fsanitize=address -fno-omit-frame-pointer -g<cr>:vert ter gbd %:r -q<cr>
 autocmd FileType markdown map <buffer> <F9> :w<cr>:MarkdownPreview<cr>
 autocmd FileType tex map <buffer> <F9> :w<cr>
 
-autocmd FileType c,cpp,cs,java setlocal commentstring=//\ %s
+autocmd FileType c,cpp map <buffer> <F5> :vert ter ./%:r<cr>
+autocmd FileType c,cpp map <buffer> <M-F5> :vert ter gdb %:r -q<cr>
 
-nnoremap mm :Autoformat<cr>
+autocmd FileType c,cpp,cs,java setlocal commentstring=//\ %s
 
 call plug#begin('/usr/share/vim/plug')
 " Plug 'SirVer/ultisnips'
-Plug 'honza/vim-snippets'
-Plug 'neoclide/coc.nvim',{'branch':'release'}
+" Plug 'honza/vim-snippets'
+" Plug 'neoclide/coc.nvim',{'branch':'release'}
+" Plug 'xavierd/clang_complete'
 Plug 'lervag/vimtex',{'for': 'tex'}
 " Plug 'davidhalter/jedi-vim'
-Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && npx --yes yarn install' }
+" Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && npx --yes yarn install' }
 Plug 'skywind3000/asyncrun.vim'
 Plug 'tpope/vim-commentary'
 Plug 'vim-autoformat/vim-autoformat'
@@ -125,17 +133,28 @@ Plug 'tpope/vim-fugitive'
 " Plug 'puremourning/vimspector'
 call plug#end()
 
+
+nnoremap mm :Autoformat<cr>
+if !exists('g:formatdef_clangformat')
+    let s:configfile_def = "'clang-format -lines='.a:firstline.':'.a:lastline.' --assume-filename=\"'.expand('%:p').'\" -style=file'"
+	let s:noconfigfile_def = "'clang-format -lines='.a:firstline.':'.a:lastline.' --assume-filename=\"'.expand('%:p').'\" -style=\"{BasedOnStyle: LLVM, UseTab: AlignWithSpaces, IndentWidth: 4, TabWidth: 4, BreakBeforeBraces: Allman, AllowShortIfStatementsOnASingleLine: false, IndentCaseLabels: false, ColumnLimit: 0, AccessModifierOffset: -4, NamespaceIndentation: All, FixNamespaceComments: false}\"'"
+    " let s:noconfigfile_def = "'clang-format -lines='.a:firstline.':'.a:lastline.' --assume-filename=\"'.expand('%:p').'\" -style=\"{BasedOnStyle: WebKit, AlignTrailingComments: true, '.(&textwidth ? 'ColumnLimit: '.&textwidth.', ' : '').'IndentWidth: '.shiftwidth().', TabWidth: '.&tabstop.', '.(&expandtab ? 'UseTab: Never' : 'UseTab: Always').'}\"'"
+    let g:formatdef_clangformat = "g:ClangFormatConfigFileExists() ? (" . s:configfile_def . ") : (" . s:noconfigfile_def . ")"
+endif
+
+" autocmd FileType c,cpp,java setlocal commentstring=//\ %s
+
 " let g:UltiSnipsExpandTrigger="<tab>"
 " let g:UltiSnipsJumpForwardTrigger="<tab>"
 " let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
 
 
-inoremap <silent><expr> <TAB>
-      \ pumvisible() ? "\<C-n>" :
-      \ coc#expandableOrJumpable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
-      \ CheckBackspace() ? "\<TAB>" :
-	  \ search('\%#[]>)}''"`]', 'n') ? '<Right>' :
-      \ coc#refresh()
+" inoremap <silent><expr> <TAB>
+"       \ pumvisible() ? "\<C-n>" :
+"       \ coc#expandableOrJumpable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
+"       \ CheckBackspace() ? "\<TAB>" :
+" 	  \ search('\%#[]>)}''"`]', 'n') ? '<Right>' :
+"       \ coc#refresh()
 inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 inoremap <expr> <cr> pumvisible() ? "\<C-y>" : search('\%#[]>)}''"`]', 'n') ? '<cr><Esc>O' : '<CR>'
 " not working inoremap <silent><expr> <c-space> pumvisible() ? <Plug>(coc-float-hide) : "\<c-space>"
@@ -148,6 +167,10 @@ function! CheckBackspace() abort
   let col = col('.') - 1
   return !col || getline('.')[col - 1]  =~# '\s'
 endfunction
+
+let g:asyncrun_open = 10
+let g:asyncrun_save = 1
+" let g:asyncrun_stdin = 1
 
 let g:vimtex_quickfix_mode = 0
 let g:vimtex_compiler_latexmk_engines = {'_':'-xelatex'}
